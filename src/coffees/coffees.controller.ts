@@ -63,10 +63,9 @@ export class CoffeesController {
   // @HttpCode(HttpStatus.GONE)
   // change body to CreateCoffeeDto so that now we know what to expect from our payload i.e. name, brand, flavours
   create(@Body() createCoffeeDto: CreateCoffeeDto) {
-    console.log(createCoffeeDto instanceof CreateCoffeeDto);
     // return body;
     // if you pass in JSON it will return the entire JSON you pass in 
-    return this.coffeeService.create(CreateCoffeeDto);
+    return this.coffeeService.create(createCoffeeDto);
   }
 
   // Put replaces entire resource so need to have the entire request object in the payload

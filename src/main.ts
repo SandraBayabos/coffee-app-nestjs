@@ -12,7 +12,7 @@ async function bootstrap() {
     // also helps with primitive transformations e.g. number to string (e.g. for id)
     transform: true,
     whitelist: true,
-    forbidNonWhitelisted: true,
+    // forbidNonWhitelisted: true,
   }));
   await app.listen(3000);
 }
