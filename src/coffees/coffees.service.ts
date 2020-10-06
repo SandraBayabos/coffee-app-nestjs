@@ -43,10 +43,19 @@ export class CoffeesService {
     return this.coffeeRepository.save(coffee);
   }
 
+  // note, in our patch operation, flavours is optional
+  // so create condition to make sure we have flavours before calling the map method
+  // otherwise, error if flavour is undefined
   async update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
+    const flavours = updateCoffeeDto.flavours && 
+    (await Promise.all(
+      updateCoffeeDto.flavours.map(name => this.preloadFlavourByName(name)),
+    ));
+
     const coffee = await this.coffeeRepository.preload({
       id: +id,
       ...updateCoffeeDto,
+      flavours
     });
     if (!coffee) {
       throw new NotFoundException(`Coffee #${id} not found`);

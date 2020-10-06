@@ -12,7 +12,11 @@ async function bootstrap() {
     // also helps with primitive transformations e.g. number to string (e.g. for id)
     transform: true,
     whitelist: true,
-    // forbidNonWhitelisted: true,
+    forbidNonWhitelisted: true,
+    transformOptions: {
+      // no longer have to specify type using @Type decoratoe
+      enableImplicitConversion: true,
+    }
   }));
   await app.listen(3000);
 }
