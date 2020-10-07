@@ -11,6 +11,7 @@ import {
   Delete,
   Query }
   from '@nestjs/common';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -29,10 +30,10 @@ export class CoffeesController {
   // add get method decorator first
   // pass in another string to create a nested route e.g. 'flavours'
   @Get()
-  findAll(@Query() paginationQuery) {
+  findAll(@Query() paginationQuery: PaginationQueryDto) {
     // const {limit, offset} = paginationQuery;
     // return `This action returns all coffees. Limit ${limit}, offset: ${offset}`;
-    return this.coffeeService.findAll()
+    return this.coffeeService.findAll(paginationQuery)
   }
 
   /* You can modify the response object and put in your own custom response codes but this 
