@@ -6,8 +6,12 @@ export class Coffee {
   @PrimaryGeneratedColumn()
   id: number;
 
+  // to test out migration, change name => title
   @Column()
   name: string;
+
+  @Column({nullable: true})
+  description: string
 
   @Column()
   brand: string;

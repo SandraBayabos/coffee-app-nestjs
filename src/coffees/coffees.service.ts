@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { PromiseUtils, Repository } from 'typeorm';
+import { Connection, PromiseUtils, Repository } from 'typeorm';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Coffee } from './entities/coffee.entity';
+import { Event } from '../events/entities/event.entity'
 import { Flavour } from './entities/flavour.entity';
+import { query } from 'express';
 
 @Injectable()
 export class CoffeesService {
@@ -13,7 +15,10 @@ export class CoffeesService {
     @InjectRepository(Coffee)
     private readonly coffeeRepository: Repository<Coffee>,
     @InjectRepository(Flavour)
-    private readonly flavourRepository: Repository<Flavour>
+    private readonly flavourRepository: Repository<Flavour>,
+    // to create transactions, we'll use the Connection object from typeorm
+    // use it for recommendCoffee 
+    private readonly connection: Connection,
   ) {}
 
   findAll(paginationQuery: PaginationQueryDto ) {
@@ -70,6 +75,41 @@ export class CoffeesService {
   async remove(id: string) {
     const coffee = await this.findOne(id);
     return this.coffeeRepository.remove(coffee);
+  }
+
+  // created a new recommended coffee instance
+
+  async recommendCoffee(coffee: Coffee) {
+    // creating a new queryRunner
+    const queryRunner = this.connection.createQueryRunner();
+
+    // establishing a connection to the db with the queryRunner
+    await queryRunner.connect();
+    // once established then start the transaction
+    await queryRunner.startTransaction()
+
+    try {
+      // increase recommendations property 
+      coffee.recommendations++;
+
+      // creating a new recommend event
+      const recommendEvent = new Event();
+      recommendEvent.name = 'recommend_coffee';
+      recommendEvent.type = 'coffee';
+      recommendEvent.payload = { coffeeId: coffee.id };
+
+      await queryRunner.manager.save(coffee);
+      await queryRunner.manager.save(recommendEvent);
+
+      await queryRunner.commitTransaction();
+      // catching errors
+    } catch (err) {
+      // preventing inconsistencies in db by rolling back the entire transaction 
+      await queryRunner.rollbackTransaction();
+      // release/close the query runner
+    } finally {
+      await queryRunner.release()
+    }
   }
 
   // creates a new class instance of flavour with the name we passed in
