@@ -9,9 +9,11 @@ import {
   Res, 
   Patch, 
   Delete,
-  Query }
+  Query, Inject }
   from '@nestjs/common';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import {REQUEST} from '@nestjs/core';
+import {Request} from 'express'
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -23,8 +25,11 @@ export class CoffeesController {
   // private => typescript shorthand => declares & initialize the CoffeeService member immediately & makes it only accessible in the class itself
   // readonly => best practice & ensures not modifying the service & only accessing things from it
   // coffeeService is just naming our parameter 
-  constructor(private readonly coffeeService: CoffeesService){
-
+  constructor(private readonly coffeeService: CoffeesService,
+    //Injecting the ORIGINAL Request object
+    @Inject(REQUEST) private readonly request: Request)
+  {
+    console.log('CoffeesController Instantiated')
   }
   // create get method 
   // add get method decorator first
